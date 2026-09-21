@@ -1,26 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #f7f6f3;
+  --ink: #1a1820;
+  --dim: #9b98a4;
+  --rule: #d9d6d0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html, body { background: var(--paper); color: var(--ink); overscroll-behavior: none; }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dot), "DotGothic16", monospace;
+  -webkit-font-smoothing: none;
 }
+
+/* 8bitの計測UI。角を落とさず、階調を作らない */
+.px { font-family: var(--font-press), monospace; letter-spacing: 0.04em; }
+
+.panel {
+  background: #fffefb;
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 rgba(26,24,32,0.16);
+}
+
+@keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+.blink { animation: blink 0.9s steps(1,end) infinite; }
+
+@keyframes popIn { from { opacity:0; transform: translateY(4px) } to { opacity:1; transform:none } }
+.pop { animation: popIn 140ms steps(3,end) both; }
+
+::selection { background: var(--ink); color: var(--paper); }
