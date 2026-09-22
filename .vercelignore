@@ -1,0 +1,12 @@
+.env*
+.git
+.next
+node_modules
+docs
+tests
+test-results
+playwright-report
+coverage
+*.tsbuildinfo
+README*
+AGENTS.md

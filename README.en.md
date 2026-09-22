@@ -1,261 +1,56 @@
 # THE HUNDRED EYES / 衆目
 
-Write one sentence, and a hundred strangers look at you at once.
+One post, a hundred readings. An interactive media artwork about the difference between what reaches people and what becomes audible.
 
-The same sentence. One eye says *Love this*. Another says *Gross*. Another *Annoying*.
-Another *Useful*. And at the end, **all hundred persona definitions are published**.
+By [@uniminyo](https://x.com/uniminyo) · [日本語](./README.md)
 
-🇯🇵 [日本語](./README.md) ・ In progress. Built on [Jev](https://typesafe.ai) / TypeSafe System One.
+## The experience
 
----
+Posting sends one wave of blinks outward from the words. The eyes stay where they are. Stronger voices receive light and a short thought; everyone else remains faintly present.
 
-## The core
+Opening post analytics illuminates the same hundred eyes and shows their reaction counts. There is no prescribed indifferent majority. The archive expands each person in place, with a matching eye portrait and four emotional dimensions.
 
-What you took for "public opinion" turns out to be **a hundred boxes written by one person**.
+Rewriting reaches the same people again. Analytics show changes from the preceding post. Nothing is evaluated while typing; identical words reuse their result within the session. After a pause, the visitor's words and revisions remain, followed by “その言葉は、誰のために。” — Who are those words for?
 
-Jev's technical constraint *is* the message:
+- **判定基準** in artwork information exposes the criteria actually passed to Jev. The explanation and API use shared definitions.
+- **Xでポスト** in analytics opens X's own composer with the current post text. The visitor confirms publication on X. No results or promotional copy are appended automatically.
+- Mobile, reduced motion and a lightweight WebGL fallback are supported. Sound is optional.
 
-> **A machine cannot step outside the options it was given. A human wrote the boxes.**
+## Run locally
 
-Jev generates no text. It only selects from the options we define. So the hundred eyes
-cannot exceed the imagination of whoever wrote them by a single step. The piece does not
-hide this — at the end, it confesses.
-
-### The verdict is in before you finish speaking
-
-It re-evaluates as you type. Add a character and the colours shift.
-
-- 100 judgments in **644–1062ms** (measured, warm). Faster than the gap between keystrokes
-- No sense of "it thought about it" — which makes it read as alive, not as a machine
-- Impossible with an LLM, both technically and economically
-
-The point is to stage **the fear of the moment you post something**.
-
----
-
-## How Jev is called
-
-`state` is the post text alone. The personas live on the `questions` side — 100 questions
-fanned out in a single call. `state` is billed once.
-
-```ts
-{
-  state: "I got a raise, so I finally bought myself a good watch.",
-  questions: {
-    d1: {
-      type: "choice",
-      instructions: {
-        あなた: "When something is announced, they first ask who profits from it",
-        question: "Which reaction is closest, for `あなた`, on seeing this post?",
-      },
-      criteria: { "好き！": "…", /* six of them */ },
-    },
-    // ×100
-  },
-}
+```sh
+npm ci
+npm run dev -- --port 3001
 ```
 
-**Every question is a Choice.** Score is for ordered scales and would be a misuse here;
-mixing in Noul would mean comparing numbers across types. Keeping one type is what lets
-a hundred people sit side by side.
+Open `http://localhost:3001`. Without a key, a clearly disclosed local rule-based sketch is used. To enable Jev, create a Git-ignored `.env.local`:
 
-| output | used for |
-| --- | --- |
-| `choice` | that eye's reaction |
-| `probabilities` | the iris colour (blended) and the breakdown on click |
-| `confidence` | size of the eye, weight of the ink |
-
-**All counting happens in code.** The model is never asked to count.
-
----
-
-## The vocabulary
-
-Jev writes none of it. All six were written in advance.
-
-| | rubric (passed straight into `criteria`) |
-| --- | --- |
-| Love this | Felt it. Want to support them |
-| Useful | Worth keeping. Want to remember it |
-| Don't care | No interest. It passes by |
-| Annoying | Grating. Feels pushed on me |
-| Gross | I didn't want to see this. Too far inside someone else |
-| Envious | Jealous, and can't be glad about it |
-
-**"Don't care" is mandatory.** Without it, everyone is forced to feel *something*, and the
-most realistic part — *indifference is the most common reaction* — disappears.
-In testing it came out on top.
-
----
-
-## The hundred personas
-
-Ten clusters × ten. **All written as attitudes, never as demographics.**
-
-| cluster | |
-| --- | --- |
-| The Doubting | When something is announced, they first ask who profits from it |
-| The Reading of Signs | They rarely say coincidence |
-| The Self-Improving | They believe the silent are losing opportunities |
-| The Mechanical | They stall on conclusions drawn from vague premises |
-| The Cooled | They keep their distance by making light of serious things |
-| The Devoted | They spare neither time nor money on what they love |
-| The Domestic | They track every expense daily |
-| The Impatient | They do not read long things. They want the end, now |
-| The Orderly | There are lines, and they cannot forgive the crossing of them |
-| The Absent | Most things are, to them, not about them |
-
-### Why not demographics
-
-A caricature like "a housewife who's into fortune telling" reads as mockery of a real group.
-An attitude lets **the reader find themselves in it** — and that pulls the audience in far
-harder than a caricature does.
-
-On top of that, every definition is published, and the piece states plainly that these are
-not society but **a hundred prejudices imagined by one person**. Confessing beats concealing,
-and it agrees with the theme.
-
-Constraints while writing them:
-
-- Never name a demographic (gender, age, occupation, nationality, faith)
-- No slurs. It has to work in English too
-- **Splitting matters more than accuracy.** If everyone reacts the same way, the piece dies
-
----
-
-## The screen
-
-Realistic hand-drawn eyes, measured by a cold 8-bit instrument. The contrast is the point.
-
-- **Eyes** — ink drawing. 46 radial iris lines, the lid crease, the tear duct, 13 lashes.
-  Every line stays black ink; **colour touches only the iris fill**. Keeping the linework
-  black is what makes colour read as uncanny rather than decorative
-- **Layout** — a specimen-sheet grid. Variation goes into lid opening and angle, never position
-- **Gaze** — all hundred face the composer at the centre
-- **UI** — pixel-font readouts. `OBSERVERS 100/100`, `SUBJECT 007`, `CONF 42`.
-  Bars have no gradient; they count in cells
-- **Motion** — an eye that changes verdict blinks once, and ♥ / ⟲ / × floats up from it
-- **Drag** — pull one and the whole grid ripples like paper
-
-### Why the threads were removed
-
-Early versions connected same-reaction eyes with coloured threads, forming a spider web.
-Removed. The threads carried no meaning beyond "these agreed", and an organic web pulled
-against the clinical feel the piece wants.
-
-**They survive as invisible constraints.** Neighbours are still linked, which is what makes
-the grid ripple when dragged.
-
----
-
-## Measurements
-
-All against the live API.
-
-| | |
-| --- | --- |
-| 100 judgments | 644–1062ms warm |
-| per call | 25,662 tok = **¥0.162** (~$0.001) |
-| rotating 25 at a time | ¥0.04 per call, 39 concurrent users |
-
-### Only nine people can type at once
-
-The easily-missed limit: **the token rate cap (250,000 tok/sec) binds before the request cap
-(1,200/min)**.
-
-```
-250,000 ÷ 25,662 = 9.7 calls/sec
-= re-evaluating every second, only nine people can type simultaneously
+```dotenv
+TYPESAFE_API_KEY=your_key_here
+JEV_MODEL=jev-latest
 ```
 
-The fix is to **rotate 25 eyes per tick** rather than all hundred. Quarter the cost, 39
-concurrent users — and **it looks better**. A hundred eyes changing in lockstep reads as a
-machine; eyes blinking out of step read as alive.
+Never expose the key through a `NEXT_PUBLIC_` variable. See [.env.example](./.env.example).
 
-Working around the constraint improved the piece.
+## Model and authorship
 
-### Confirming all six words can fire
+Each person receives one Choice and four independent Scores: interest, affection, discomfort and desire to speak. The 500 questions are sent in four parallel requests of 25 people. Only a complete, validated response updates the room; failures preserve the previous observation.
 
-Verified across 8 posts × 100 personas = 800 judgments.
+Persona definitions, short thoughts and reach are authored. Jev does not generate the displayed prose. Reaction counts emerge from the readings, and confidence is not used as emotional intensity. These are fictional observers, not measured people or X analytics.
 
-| reaction | rate |
-| --- | --- |
-| Don't care | 29% |
-| Love this | 27% |
-| Gross | 17% |
-| Useful | 12% |
-| Annoying | 12% |
-| Envious | 3% |
+Blink timing is artistic choreography, not Jev execution telemetry. Only explicitly posted text is sent to TypeSafe.
 
-Indifference coming out on top is exactly what was designed for.
+## Validate and deploy
 
----
-
-## What went wrong on the way
-
-### Stripping the criteria descriptions kills the piece
-
-Dropping the rubric text takes a call from ¥0.162 to ¥0.071. Comparing the judgments gave
-**73% agreement**, and the failure mode was the worst possible one.
-
-```
-【a post about being unwell】
-  with rubrics:  Love 4 / Annoying 4 / Don't care 12   ← splits
-  criteria null: Don't care 10/10 (confidence 0.70–0.90) ← flat, and certain about it
+```sh
+npm run lint
+npm run build
+npm run test:e2e
 ```
 
-It confidently flattens everyone into indifference. **The rubric is the judgment.**
+Automated checks use local or synthetic responses; they do not send live posts to Jev or X. Install test browsers with `npx playwright install` if needed.
 
-### "Gross" almost never fired
+- [Current implementation, previews and live connection records (Japanese)](./docs/ATTENTION-EXPERIENCE.md)
+- [Vercel deployment instructions (Japanese)](./docs/DEPLOYMENT.md)
 
-The original rubric was *viscerally unacceptable* — too high a bar, firing in only 2 of 8
-posts. Redefining it as **a violation of boundaries** fixed it.
-
-```
-【a post about drinking the coffee her husband left】
-  "viscerally unacceptable"                    → Gross  0
-  "didn't want to see it. too far inside them" → Gross 18
-```
-
-Useful and everyday posts stayed at 0, so it is not over-firing. It also lands closer to how
-きもい is actually used on Japanese social media.
-
-### A hundred eyes cannot see past the person who wrote them
-
-During testing:
-
-```
-Every morning I finish the coffee my husband left behind. It feels like sharing a taste.
-→ Love this 87, Gross 0
-```
-
-A human audience would certainly split on that sentence. But no persona held the attitude
-*finds fixation on someone else's belongings unsettling* — so the reaction did not exist.
-
-**The theme of the piece surfaced as data.**
-
----
-
-## Running it
-
-```bash
-npm install
-echo "TYPESAFE_API_KEY=..." > .env.local
-npm run dev
-```
-
-The key is read server-side only.
-
-| file | |
-| --- | --- |
-| `app/page.tsx` | screen: composer, tally, readout panel |
-| `components/Web.tsx` | canvas: eye rendering, physics, drag, flourishes |
-| `components/Bar.tsx` | 8-bit segmented bar |
-| `lib/personas.ts` | the hundred personas and six reactions |
-| `lib/web.ts` | layout and physics |
-
-**Currently running on mock data.** The Jev wiring comes next.
-
----
-
-By [@uniminyo](https://x.com/uniminyo)
+Earlier design records remain in `docs` and Git history. Historical descriptions of fixed counts or evaluation while typing do not describe this build.
