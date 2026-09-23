@@ -4,6 +4,8 @@
 
 作品の本番URLは **https://eyes.mintan.org**。別のURLで運用する場合は `lib/site.ts` の `SITE_URL` を変更してください。OGP・canonical・Xへの共有URLが同じ定義を参照します。
 
+本作品の公開先は **[mintannns-projects / the-hundred-eyes](https://vercel.com/mintannns-projects/the-hundred-eyes)**。複数のVercelアカウントを使う場合も、このチームを明示してください。フォークを公開する場合は、以下を自分のチームとプロジェクトに置き換えます。
+
 ## プロジェクト設定
 
 - Framework Preset：Next.js
@@ -30,14 +32,15 @@ PreviewにもJevを使う場合は、その環境にも明示的に設定しま�
 ## CLIでの公開
 
 ```sh
-vercel login
-vercel link
-vercel env add TYPESAFE_API_KEY production --sensitive
-vercel env add JEV_MODEL production
-vercel deploy --prod
+vercel login --global-config ~/.config/vercel-mintannn
+vercel teams ls --global-config ~/.config/vercel-mintannn
+vercel link --project the-hundred-eyes --scope mintannns-projects --global-config ~/.config/vercel-mintannn
+vercel env add TYPESAFE_API_KEY production --sensitive --scope mintannns-projects --global-config ~/.config/vercel-mintannn
+vercel env add JEV_MODEL production --scope mintannns-projects --global-config ~/.config/vercel-mintannn
+vercel deploy --prod --scope mintannns-projects --global-config ~/.config/vercel-mintannn
 ```
 
-プロジェクトの機密情報は `.vercel` に置かれ、Git対象から除外されます。`.vercelignore` はテスト・生成済みプレビュー画像・制作資料をデプロイのアップロードから除外します。
+チーム一覧に `mintannns-projects` があることを確認してからリンク・公開します。認証は専用のCLIプロファイル、プロジェクトの紐付けはGit対象外の `.vercel` に保存します。`.vercelignore` はテスト・生成済みプレビュー画像・制作資料をデプロイのアップロードから除外します。
 
 ## 公開後の確認
 
