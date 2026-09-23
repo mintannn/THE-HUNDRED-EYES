@@ -11,16 +11,20 @@ test("the space exposed by a receding post lets the visitor touch an eye", async
     const post = document.querySelector(".x-composer")!.getBoundingClientRect();
     for (const [index, eye] of eyes.entries()) {
       const bounds = eye.getBoundingClientRect();
-      const x = bounds.x + bounds.width / 2, y = bounds.y + bounds.height / 2;
-      const inStage = x > stage.left && x < stage.right && y > stage.top && y < stage.bottom;
+      // A wide eye can overlap the stage while its center is outside it.
+      const left = Math.max(bounds.left, stage.left), right = Math.min(bounds.right, stage.right);
+      const top = Math.max(bounds.top, stage.top), bottom = Math.min(bounds.bottom, stage.bottom);
+      if (right <= left || bottom <= top) continue;
+      const x = (left + right) / 2, y = (top + bottom) / 2;
       const inPost = x >= post.left && x <= post.right && y >= post.top && y <= post.bottom;
-      if (inStage && !inPost && document.elementFromPoint(x, y)?.closest(".eye-target") === eye) {
+      if (!inPost && document.elementFromPoint(x, y)?.closest(".eye-target") === eye) {
         return { x, y, number: index + 1 };
       }
     }
     return null;
   });
   expect(exposed, "The empty stage must allow clicks through to its visible eyes").not.toBeNull();
+  expect(await page.locator("main").evaluate((main) => main.scrollLeft)).toBe(0);
   if (isMobile) await page.touchscreen.tap(exposed!.x, exposed!.y);
   else await page.mouse.click(exposed!.x, exposed!.y);
   await expect(page.getByRole("dialog", { name: `観測者 ${exposed!.number}の内面`, exact: true })).toBeVisible();

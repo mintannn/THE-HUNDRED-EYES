@@ -20,15 +20,15 @@ button:disabled { cursor: default; }
 button, a, textarea { outline: none; }
 button:focus-visible, a:focus-visible { outline: 1px solid var(--accent); outline-offset: 6px; }
 ::selection { background: #677e6b; color: #fff; }
-.experience { position: relative; isolation: isolate; width: 100%; height: 100svh; min-height: 720px; overflow: hidden; background: #050807; }
+.experience { position: relative; isolation: isolate; width: 100%; height: 100svh; min-height: 720px; overflow: clip; background: #050807; }
 .cosmic-glow { position: absolute; inset: 0; background: radial-gradient(ellipse at 51% 47%, #1c2c232c 0, transparent 48%), radial-gradient(ellipse at 12% 64%, #31534a15, transparent 32%), radial-gradient(ellipse at 85% 20%, #3a342119, transparent 38%); pointer-events: none; }
 .event-glow { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
 .atmosphere-storm .event-glow { background: radial-gradient(ellipse at 50% 53%, transparent 16%, #883a241f 53%, #a8321e33); animation: storm-breath 12s ease-out both; }
 .atmosphere-resonance .event-glow { background: radial-gradient(ellipse at center, #ac6c7d13, transparent 70%); animation: resonance-breath 6s ease-out both; }
-.eyes-scene { position: absolute; inset: 0; z-index: 1; touch-action: none; }
-.eyes-scene > canvas { display: block; height: 100%; width: 100%; }
+.eyes-scene { position: absolute; inset: 0; touch-action: none; }
+.eyes-scene > canvas { position: relative; z-index: 1; display: block; height: 100%; width: 100%; }
 .eyes-scene > canvas[hidden] { display: none; }
-.eye-targets { position: absolute; inset: 0; pointer-events: none; }
+.eye-targets { position: absolute; z-index: 4; inset: 0; pointer-events: none; }
 .eye-target { position: absolute; top: 0; left: 0; padding: 0; border: 0; background: transparent; pointer-events: auto; color: var(--eye-color, #8da394); border-radius: 50%; z-index: 1; }
 .eye-glimmer { position: absolute; inset: 20% 8%; pointer-events: none; background: radial-gradient(ellipse, #dae6df1c, transparent 68%); opacity: 0; filter: blur(5px); transition: opacity .5s; }
 .eye-target:hover .eye-glimmer, .eye-target:focus-visible .eye-glimmer, .eye-target.is-selected .eye-glimmer { opacity: 1; }
@@ -37,7 +37,7 @@ button:focus-visible, a:focus-visible { outline: 1px solid var(--accent); outlin
 .eye-number { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); font: 8px var(--mono); letter-spacing: .15em; opacity: 0; transition: opacity .3s; }
 .eye-number.show-number { opacity: calc(var(--eye-opacity, 1) * .5); }
 .eye-target:hover .eye-number, .eye-target:focus-visible .eye-number { opacity: .9; }
-.eye-whisper { position: absolute; bottom: calc(100% + 7px); left: calc(50% + var(--whisper-x, 0px)); transform: translateX(-50%); width: max-content; max-width: min(220px, calc(100vw - 32px)); white-space: normal; text-align: center; font-size: 11px; letter-spacing: .1em; text-shadow: 0 0 15px currentColor; animation: whisper-appear 1.4s ease-out both; }
+.eye-whisper { position: absolute; bottom: calc(100% + 7px); left: calc(50% + var(--whisper-x, 0px)); transform: translate(-50%, var(--whisper-y, 0px)); width: max-content; max-width: min(220px, calc(100vw - 32px)); white-space: normal; text-align: center; font-size: 11px; letter-spacing: .1em; text-shadow: 0 0 15px currentColor; animation: whisper-appear 1.4s ease-out both; }
 .eye-target.is-speaking { z-index: 2; }
 .vignette { position: absolute; z-index: 2; inset: 0; pointer-events: none; background: linear-gradient(0deg, #050807 0%, #050807d9 9%, transparent 28%, transparent 82%, #050807bb), radial-gradient(ellipse at 50% 48%, transparent 30%, #03060544 90%); }
 .grain { z-index: 9; position: absolute; inset: 0; pointer-events: none; opacity: .018; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E"); }
@@ -244,7 +244,7 @@ button:focus-visible, a:focus-visible { outline: 1px solid var(--accent); outlin
 .footer-baseline .space-tools { gap: 20px; }.footer-baseline .utility-button { min-width: 22px; min-height: 28px; justify-content: center; }
 
 /* A nonmodal readout appears beside the selected eye. The scene keeps moving. */
-.eye-popover { position: fixed; z-index: 25; top: 100px; left: 14px; width: 287px; max-width: calc(100vw - 28px); max-height: calc(100svh - 102px); overflow-y: auto; padding: 19px 20px 18px; border: 1px solid #afbfac30; border-radius: 8px; background: linear-gradient(135deg, #17201be8, #0b1110db); backdrop-filter: blur(13px); box-shadow: 0 14px 50px #0007, inset 0 1px #c1d1b10a; color: #b9c6b2; animation: mind-appear .5s cubic-bezier(.2,.75,.25,1) both; transform-origin: var(--anchor-x, 50%) 30%; scrollbar-width: thin; scrollbar-color: #52604b transparent; }
+.eye-popover { position: fixed; z-index: 25; top: 100px; left: 14px; width: 287px; max-width: calc(100vw - 28px); overflow: visible; padding: 19px 20px 18px; border: 1px solid #afbfac30; border-radius: 8px; background: linear-gradient(135deg, #17201be8, #0b1110db); backdrop-filter: blur(13px); box-shadow: 0 14px 50px #0007, inset 0 1px #c1d1b10a; color: #b9c6b2; animation: mind-appear .5s cubic-bezier(.2,.75,.25,1) both; transform-origin: var(--anchor-x, 50%) 30%; }
 .popover-close { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; height: 28px; width: 28px; padding: 0; border: 0; background: none; color: #91a18a; border-radius: 50%; }.popover-close:hover { color: #e0e9d7; background: #afc29a12; }
 .popover-heading { display: flex; align-items: baseline; gap: 12px; padding-right: 24px; }.popover-heading .persona-index { font: 34px/1 var(--serif); color: #c8d3c0; letter-spacing: .02em; }.popover-heading > span:nth-child(2) { font: 11px var(--serif); letter-spacing: .08em; color: #98a990; }.popover-heading > i { width: 4px; height: 4px; border-radius: 50%; background: var(--reaction); margin-left: auto; }
 .popover-attitude { font: 10px/1.8 var(--sans); letter-spacing: .01em; color: #8fa185; margin: 14px 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -353,9 +353,8 @@ button:focus-visible, a:focus-visible { outline: 1px solid var(--accent); outlin
   border: 1px solid transparent; border-radius: 23px; background: transparent;
   -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none;
   text-shadow: 0 1px 8px #010406, 0 0 3px #010406aa;
-  touch-action: pan-y pinch-zoom; overscroll-behavior: contain;
+  touch-action: pinch-zoom;
   color: #b7c2c7; animation: glass-arrives .7s cubic-bezier(.2,.75,.25,1) both;
-  scrollbar-color: #77889155 transparent;
 }
 .eye-popover::before, .insight-panel::before, .insight-trigger::before, .about-dialog::before { content: ""; position: absolute; z-index: 0; inset: -12px; pointer-events: none; background: radial-gradient(ellipse, #0a121866 10%, #15212b27 65%, transparent); -webkit-backdrop-filter: blur(12px) saturate(.65); backdrop-filter: blur(12px) saturate(.65); -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(0deg, transparent, #000 9%, #000 91%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent), linear-gradient(0deg, transparent, #000 9%, #000 91%, transparent); -webkit-mask-composite: source-in; mask-composite: intersect; }
 .eye-popover > :not(.popover-close) { position: relative; z-index: 1; animation: invitation-in .65s ease-out both; }
@@ -846,4 +845,23 @@ button:focus-visible, a:focus-visible { outline: 1px solid var(--accent); outlin
 }
 @media (max-width: 760px) and (prefers-reduced-motion: reduce) {
   .phase-revealing .central-experience, .phase-reality .central-experience { top: min(28%, calc(100% - 480px)); }
+}
+
+/* A readout fits in one glance; only the hundred-person archive scrolls. */
+.eye-popover .popover-attitude { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.eye-popover .emotion-parameters > div { display: grid; grid-template-columns: 66px minmax(30px, 1fr) 48px; gap: 9px; line-height: 16px; }
+.eye-popover .emotion-parameters > div > span:first-child,
+.eye-popover .emotion-parameters > div > span:last-child { width: auto; white-space: nowrap; }
+.exhibition-header .sound-button { display: flex; align-items: center; gap: 5px; width: auto; }
+.exhibition-header .sound-button > span { display: inline; font: 8px var(--mono); letter-spacing: .04em; color: #7e918f; }
+.exhibition-header .sound-button[aria-pressed="true"] > span { color: #b7c9c2; }
+@media (max-height: 540px) {
+  .eye-popover { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 22px; width: 480px; padding: 17px 21px; }
+  .eye-popover .popover-heading, .eye-popover .popover-attitude { grid-column: 1 / -1; }
+  .eye-popover .popover-attitude { margin-top: 10px; }
+  .eye-popover .popover-instinct { grid-column: 1; margin: 15px 0 8px; align-items: center; }
+  .eye-popover .popover-instinct > blockquote { font-size: 20px; }
+  .eye-popover .emotion-parameters { grid-column: 2; grid-row: 3 / 5; align-self: center; gap: 8px; margin-top: 12px; }
+  .eye-popover .emotion-parameters > div { grid-template-columns: 62px minmax(20px, 1fr) 41px; gap: 5px; }
+  .eye-popover .popover-voice { grid-column: 1; margin-top: 6px; padding-top: 10px; }
 }

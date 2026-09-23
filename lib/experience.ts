@@ -80,10 +80,15 @@ export function randomFrom(seed: number) {
 
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
 
-// A person's reach belongs to the authored world, not to model confidence.
+// These same four people have a platform on every post. The model decides
+// what they feel; their visibility is an authored property of this room.
+export const AMPLIFIED_VOICES = ["d7", "c2", "v2", "o7"] as const;
+
+// A person's reach belongs to the authored world, not to model confidence
+// or their momentary desire to express a feeling.
 export function voiceProfile(id: string) {
   const random = randomFrom(seedOf(`voice:${id}`));
-  const publicVoice = ["v2", "v5"].includes(id) || random() > .78;
+  const publicVoice = AMPLIFIED_VOICES.some((speaker) => speaker === id);
   return { reach: Math.round(publicVoice ? 9000 + random() * 40000 : 30 + random() * 1600),
     audibility: publicVoice ? .82 + random() * .18 : .12 + random() * .28 };
 }
@@ -91,10 +96,10 @@ export function voiceProfile(id: string) {
 export function makeReading(id: string, reaction: ReactionId, feelings: Feelings,
   probabilities: Reading["probabilities"], confidence: number, certainty: Feelings): Reading {
   const profile = voiceProfile(id);
-  const voice = feelings.expression * profile.audibility;
+  const voice = profile.audibility;
   const negative = reaction === "annoying" || reaction === "gross";
   const persona = PERSONAS.find((p) => p.id === id)!;
-  const delivery = voice > .48 ? reaction === "love" ? "praise" : "loud"
+  const delivery = voice > .48 ? reaction === "love" ? "praise" : negative && persona.cluster === "cool" ? "sneer" : "loud"
     : negative && persona.cluster === "cool" && feelings.expression > .35 ? "sneer"
     : feelings.expression < .1 ? "silent" : "soft";
   return { id, reaction, feelings, probabilities, confidence, certainty, voice, reach: profile.reach, delivery };
@@ -103,7 +108,9 @@ export function makeReading(id: string, reaction: ReactionId, feelings: Feelings
 export function assembleObservation(text: string, readings: Reading[], source: Engine): Observation {
   const counts = Object.fromEntries(EMOTIONS.map((e) => [e.id, readings.filter((r) => r.reaction === e.id).length])) as Observation["counts"];
   const positive = readings.filter((r) => ["love", "useful"].includes(r.reaction) && r.voice > .48).reduce((sum, r) => sum + r.voice, 0);
-  const negative = readings.filter((r) => ["annoying", "gross", "envy"].includes(r.reaction) && (r.delivery === "loud" || r.delivery === "sneer")).reduce((sum, r) => sum + r.voice, 0);
+  // The room's pressure follows the amplified voices, not the combined weight
+  // of quiet feelings. The full population is counted separately above.
+  const negative = readings.filter((r) => ["annoying", "gross", "envy"].includes(r.reaction) && r.voice > .48).reduce((sum, r) => sum + r.voice, 0);
   const spotlight = positive > negative ? "praise" : "criticism";
   const atmosphere = negative > 1.4 ? "storm" : positive > .5 ? "resonance" : "quiet";
   return { text: text.trim(), readings, counts, source, atmosphere, spotlight,

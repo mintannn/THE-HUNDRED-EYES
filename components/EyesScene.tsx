@@ -76,10 +76,10 @@ export default function EyesScene(props: Props) {
     const rand = randomFrom(84931);
     const plane = new THREE.PlaneGeometry(2, 1.3, 16, 8);
     const labels = targets.current;
-    const whisperWidths = new Map<Element, number>();
+    const whisperSizes = new Map<Element, { width: number; height: number }>();
     let whispers: (HTMLElement | null)[] = [];
     const whisperObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) whisperWidths.set(entry.target, entry.contentRect.width);
+      for (const entry of entries) whisperSizes.set(entry.target, { width: entry.contentRect.width, height: entry.contentRect.height });
     });
     const baseColor = new THREE.Color("#91a39c");
     const memoryCanvas = document.createElement("canvas");
@@ -308,7 +308,7 @@ export default function EyesScene(props: Props) {
         witnessIds = quietWitnesses(current.observation);
         updatePortraits(current.observation);
         whisperObserver.disconnect();
-        whisperWidths.clear();
+        whisperSizes.clear();
         whispers = labels.map((label) => label?.querySelector<HTMLElement>(".eye-whisper") ?? null);
         whispers.forEach((whisper) => { if (whisper) whisperObserver.observe(whisper); });
       }
@@ -458,9 +458,17 @@ export default function EyesScene(props: Props) {
           target.style.setProperty("--presence", String(ending ? 1 : presence * fading));
           target.style.setProperty("--memory", String(remembers ? memoryPulse : 0));
           const whisper = whispers[i];
-          const halfWhisper = whisper ? (whisperWidths.get(whisper) ?? 0) / 2 : 0;
+          const whisperSize = whisper ? whisperSizes.get(whisper) : undefined;
+          const halfWhisper = (whisperSize?.width ?? 0) / 2;
           // Edge captions stay legible without relocating their eyes.
           target.style.setProperty("--whisper-x", `${THREE.MathUtils.clamp(x, halfWhisper + 12, width - halfWhisper - 12) - x}px`);
+          // Keep the amplified captions below the header and above the footer.
+          // Only the caption shifts; the eye remains at its existing coordinates.
+          const whisperGap = reading?.delivery === "sneer" ? 8 : reading?.delivery === "praise" ? 6 : 2;
+          const whisperTop = y - Math.max(32, size * .55) / 2 - whisperGap - (whisperSize?.height ?? 0);
+          target.style.setProperty("--whisper-y", foreground
+            ? `${THREE.MathUtils.clamp(whisperTop, width < 700 ? 84 : 100, height - 70 - (whisperSize?.height ?? 0)) - whisperTop}px`
+            : "0px");
           if (remembers) {
             const memoryWidth = width < 760 ? Math.min(220, width * .44) : Math.min(220, width * .48);
             const memoryX = THREE.MathUtils.clamp(x, memoryWidth / 2 + 14, width - memoryWidth / 2 - 14) - x;

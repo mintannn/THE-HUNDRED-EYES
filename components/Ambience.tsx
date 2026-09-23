@@ -18,53 +18,81 @@ export default function Ambience({ spotlight, phase, sequence, paused, still, ne
 }) {
   const audio = useRef<Sound | null>(null);
   const lastBell = useRef(-1);
+  const previouslyEnabled = useRef(false);
   const [enabled, setEnabled] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [failed, setFailed] = useState(false);
   useEffect(() => () => { void audio.current?.context.close(); }, []);
   useEffect(() => {
     if (!audio.current) return;
     const { context, output, floor, choir, voices, bell } = audio.current;
     const now = context.currentTime;
+    const justEnabled = enabled && !previouslyEnabled.current;
+    previouslyEnabled.current = enabled;
     const open = phase === "revealing" || phase === "reality" || phase === "revising";
     const surrounded = spotlight !== null && !open;
     output.gain.setTargetAtTime(enabled && !paused ? 1 : 0, now, .3);
     const settling = phase === "confronting";
-    floor.gain.setTargetAtTime(still ? 0 : open ? .001 : nearThreshold ? .002 : settling ? .004 : surrounded ? .009 : .006, now, still ? 3 : open ? .6 : 1.7);
-    choir.gain.setTargetAtTime(surrounded ? nearThreshold ? .0008 : settling ? .0025 : .0045 : 0, now, open ? .65 : 1.5);
-    const harmony = spotlight === "praise" ? [110, 165, 220] : [110, 116.54, 155.56];
+    floor.gain.setTargetAtTime(still ? 0 : open ? .008 : nearThreshold ? .012 : settling ? .024 : surrounded ? .036 : .028, now, still ? 3 : justEnabled ? .2 : open ? .6 : 1.7);
+    choir.gain.setTargetAtTime(surrounded ? nearThreshold ? .004 : settling ? .01 : .016 : 0, now, open ? .65 : 1.5);
+    const harmony = spotlight === "praise" ? [220, 330, 440] : [220, 233.08, 311.12];
     voices.forEach((voice, i) => voice.frequency.setTargetAtTime(harmony[i], now, 1.2));
-    if (!enabled || paused || phase !== "reality") {
+    if (!enabled || paused) {
       bell.gain.cancelScheduledValues(now);
       bell.gain.setTargetAtTime(0, now, .12);
-    } else if (lastBell.current !== sequence) {
-      lastBell.current = sequence;
-      // A single, quiet overtone follows the retreat of the crowd.
+    } else if (justEnabled || (phase === "reality" && lastBell.current !== sequence)) {
+      if (phase === "reality") lastBell.current = sequence;
+      // A short overtone confirms sound-on; a longer one follows the retreat.
       bell.gain.cancelScheduledValues(now);
       bell.gain.setValueAtTime(0, now);
-      bell.gain.linearRampToValueAtTime(.006, now + .16);
-      bell.gain.exponentialRampToValueAtTime(.0001, now + 2.7);
-      bell.gain.setTargetAtTime(0, now + 2.7, .2);
+      const duration = justEnabled ? .9 : 2.7;
+      bell.gain.linearRampToValueAtTime(justEnabled ? .018 : .032, now + .16);
+      bell.gain.exponentialRampToValueAtTime(.0001, now + duration);
+      bell.gain.setTargetAtTime(0, now + duration, .2);
+    } else if (phase !== "reality") {
+      bell.gain.cancelScheduledValues(now);
+      bell.gain.setTargetAtTime(0, now, .12);
     }
   }, [enabled, phase, spotlight, sequence, paused, still, nearThreshold]);
   const toggle = async () => {
+    if (starting) return;
+    setStarting(true);
+    setFailed(false);
     try {
       if (!audio.current) {
-        const context = new AudioContext();
+        const AudioContextClass = window.AudioContext ??
+          (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        if (!AudioContextClass) throw new Error("Audio unavailable");
+        const context = new AudioContextClass();
         const output = context.createGain();
         output.gain.value = 0;
-        output.connect(context.destination);
+        const limiter = context.createDynamicsCompressor();
+        limiter.threshold.value = -16;
+        limiter.knee.value = 12;
+        limiter.ratio.value = 4;
+        output.connect(limiter).connect(context.destination);
         const floor = context.createGain();
         const choir = context.createGain();
         const bell = context.createGain();
         for (const bus of [floor, choir, bell]) { bus.gain.value = 0; bus.connect(output); }
-        [55, 55.18, 82.4].forEach((hz) => {
+        // Keep the floor audible on phone speakers, with a quiet midrange body.
+        [110, 110.18, 164.8].forEach((hz) => {
           const oscillator = context.createOscillator();
           oscillator.type = "sine";
           oscillator.frequency.value = hz;
           oscillator.connect(floor);
           oscillator.start();
         });
-        const voices = [110, 165, 220].map((hz, i) => {
+        [220, 329.6].forEach((hz) => {
+          const oscillator = context.createOscillator();
+          const gain = context.createGain();
+          oscillator.type = "triangle";
+          oscillator.frequency.value = hz;
+          gain.gain.value = .18;
+          oscillator.connect(gain).connect(floor);
+          oscillator.start();
+        });
+        const voices = [220, 330, 440].map((hz, i) => {
           const voice = context.createOscillator();
           const pan = context.createStereoPanner();
           voice.frequency.value = hz;
@@ -81,15 +109,22 @@ export default function Ambience({ spotlight, phase, sequence, paused, still, ne
         audio.current = { context, output, floor, choir, voices, bell };
       }
       await audio.current.context.resume();
+      if (audio.current.context.state !== "running") throw new Error("Audio has not started");
       setEnabled((value) => !value);
     } catch {
       setFailed(true);
+      setEnabled(false);
+    } finally {
+      setStarting(false);
     }
   };
   return (
-    <button className="utility-button sound-button" onClick={toggle} aria-label={failed ? "この端末では音声を利用できません" : `環境音を${enabled ? "オフ" : "オン"}にする`} aria-pressed={enabled} disabled={failed}>
+    <button className="utility-button sound-button" onClick={toggle}
+      title={failed ? "音声を開始できませんでした。もう一度押して再試行します。" : `環境音 ${enabled ? "ON" : "OFF"}`}
+      aria-label={failed ? "環境音を再試行" : `環境音を${enabled ? "オフ" : "オン"}にする`}
+      aria-pressed={enabled} aria-busy={starting} disabled={starting}>
       <Icon name={enabled ? "sound" : "mute"} size={15} />
-      <span>SOUND {enabled ? "ON" : "OFF"}</span>
+      <span>音 {failed ? "再試行" : starting ? "…" : enabled ? "ON" : "OFF"}</span>
     </button>
   );
 }

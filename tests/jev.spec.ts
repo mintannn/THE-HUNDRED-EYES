@@ -27,7 +27,8 @@ test("each person has four independent scores and a separate choice", () => {
   expect(reading.feelings.affection).toBe(1);
   expect(reading.feelings.expression).toBe(0);
   expect(reading.feelings.discomfort).toBeCloseTo(1 / 3);
-  expect(reading.voice).toBe(0);
+  // Desire to speak is a model result; this quiet observer's reach is authored.
+  expect(reading.voice).toBeLessThan(.48);
   expect(reading.confidence).toBe(1);
   expect(reading.delivery).toBe("silent");
 });

@@ -28,7 +28,6 @@ export default function EyePopover({ id, reading, previous, onClose }: { id: str
       const rect = target?.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-      element.style.maxHeight = `${Math.max(150, viewportHeight - 98)}px`;
       const w = element.offsetWidth;
       const h = element.offsetHeight;
       const eyeX = rect ? rect.left + rect.width / 2 : viewportWidth / 2;
@@ -40,7 +39,8 @@ export default function EyePopover({ id, reading, previous, onClose }: { id: str
         ? eyeX < viewportWidth / 2 ? Math.min(eyeX - w - 24, composer.left - w - 24) : Math.max(eyeX + 24, composer.right + 24)
         : roomOnRight ? eyeX + 40 : eyeX - w - 40;
       const x = Math.max(14, Math.min(viewportWidth - w - 14, beside));
-      const y = Math.max(80, Math.min(viewportHeight - h - 18, eyeY - h * .36));
+      const topInset = Math.min(80, Math.max(12, (viewportHeight - h) / 2));
+      const y = Math.max(topInset, Math.min(viewportHeight - h - 14, eyeY - h * .36));
       element.style.left = `${x}px`;
       element.style.top = `${y}px`;
       element.style.setProperty("--anchor-x", `${Math.max(10, Math.min(w - 10, eyeX - x))}px`);

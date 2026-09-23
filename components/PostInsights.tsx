@@ -52,8 +52,9 @@ export default function PostInsights({ observation, previous, cycle, visible, on
           aria-label={`観測者 ${PERSONAS.findIndex((p) => p.id === person.id) + 1}、${EMOTIONS.find((emotion) => emotion.id === person.reaction)!.label}`} />)}
       </div>
       <div className="insight-footnote">
-        <a className="x-post-link" href={xPostIntent(observation.text)} target="_blank" rel="noopener noreferrer"
-          aria-label="この言葉をXでポスト（新しいタブ）">Xでポスト <Icon name="arrow" size={12} /></a>
+        <a className="x-post-link" href={xPostIntent(observation)} target="_blank" rel="noopener noreferrer"
+          title="投稿文・直感の内訳・作品URLを添えて開きます"
+          aria-label="この言葉・統計・作品URLをXでポスト（新しいタブ）">Xでポスト <Icon name="arrow" size={12} /></a>
         <button onClick={onArchive} aria-label="100人の内側を見る">100人の内側 <Icon name="arrow" size={12} /></button>
       </div>
     </section>

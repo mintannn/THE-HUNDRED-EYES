@@ -139,7 +139,7 @@ export default function Page() {
       <header className="exhibition-header">
         <div className="brand"><div className="brand-symbol"><Icon name="eye" size={29} /></div><h1 className="brand-title haunted-type" data-echo="衆目">衆目<span>THE HUNDRED EYES</span></h1></div>
         <nav className="header-actions" aria-label="作品の操作">
-          <Ambience spotlight={observation?.spotlight ?? null} phase={phase} sequence={sequence} paused={paused || about || archive} still={still} nearThreshold={nearThreshold} />
+          <Ambience spotlight={observation?.spotlight ?? null} phase={phase} sequence={sequence} paused={about || archive} still={still} nearThreshold={nearThreshold} />
           <button className="about-button" onClick={() => { setSelected(null); setAbout(true); }} aria-label="この作品について"><Icon name="info" size={17} /></button>
         </nav>
       </header>
